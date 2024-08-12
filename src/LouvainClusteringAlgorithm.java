@@ -2,6 +2,7 @@ package src;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,14 +17,18 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		List<Map<Integer,WeightedEdge>> subgraphAdjacencyList = adjacencyList;
 		List<List<Integer>> answer = new ArrayList<List<Integer>>();
 		int [] clusterMemberships = new int [numVertices];
+		
 		for(int i=0;i<numVertices;i++) {
 			clusterMemberships[i]=i;
 			List<Integer> singleElemCluster = new ArrayList<Integer>();
 			singleElemCluster.add(i);
 			answer.add(singleElemCluster);
 		}
-		//while (true) {
-		for (int r=0;r<1;r++) {
+
+		while (true) {
+			System.out.print("Número de nodos del subgraph ------ ");
+			System.out.println(subgraphAdjacencyList.size());
+		//for (int r=0;r<1;r++) {
 			int n = answer.size();
 			int [] subgraphClusterMemberships = new int [n];
 			List<Integer> indexes = new ArrayList<Integer>();
@@ -46,12 +51,24 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 				if(!changedRound) break;
 				changed = true;
 			}
+
 			if(!changed) break; 
 			answer = updateClusters(clusterMemberships,subgraphClusterMemberships);
-			subgraphAdjacencyList = buildSubgraphAdjacencyList(adjacencyList, clusterMemberships, n);
+
+			int num_clusters = calculateNumberOfClusters(clusterMemberships);
+			subgraphAdjacencyList = buildSubgraphAdjacencyList(adjacencyList, clusterMemberships, num_clusters);
 				
 		}
 		return answer;
+	}
+
+	private int calculateNumberOfClusters(int [] array){ // Meli
+		Set<Integer> uniqueNumbers = new HashSet<>();
+        for (int num : array) {
+            uniqueNumbers.add(num);
+        }
+        int numberOfUniqueNumbers = uniqueNumbers.size();
+		return numberOfUniqueNumbers;
 	}
 
 	private int calculateTotalWeight(List<Map<Integer, WeightedEdge>> subgraphAdjacencyList) {
@@ -64,7 +81,19 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		return w;
 	}
 
-	
+	private void printGraphWeights(List<Map<Integer,WeightedEdge>> subgraphAdjacencyList){
+		for (int i=0;i<subgraphAdjacencyList.size();i++) {
+			System.out.println("PARA EL NODO: " + i);
+
+			Map<Integer,WeightedEdge> edgesI = subgraphAdjacencyList.get(i);
+			for (Map.Entry<Integer, WeightedEdge> entry : edgesI.entrySet()) {
+				WeightedEdge edge = entry.getValue();
+				System.out.println("\n V1 " + edge.getV1());
+				System.out.println(" V2: " + edge.getV2());
+				System.out.println(" Weight: " + edge.getWeight());
+			}
+		}
+	}
 
 	private int calculateBestCluster(List<Map<Integer,WeightedEdge>> adjacencyList, int[] clusterMemberships, int i, int totalEdges) {
 		Map<Integer,WeightedEdge> edgesI = adjacencyList.get(i);
@@ -90,7 +119,6 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 	}
 
 	
-
 	private double calculateModularityChange(List<Map<Integer, WeightedEdge>> adjacencyList, int[] clusterMemberships, int i, int j, int totalEdges) {
 		double currentM = calculateModularity(adjacencyList,clusterMemberships,clusterMemberships[i], totalEdges);
 		currentM += calculateModularity(adjacencyList,clusterMemberships,clusterMemberships[j], totalEdges);
@@ -125,23 +153,27 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 	private List<Map<Integer,WeightedEdge>> buildSubgraphAdjacencyList(List<Map<Integer,WeightedEdge>> adjacencyList, int [] clusterMemberships, int numClusters) {
 		List<Map<Integer,WeightedEdge>> answer = new ArrayList<Map<Integer,WeightedEdge>>();
 		for(int i=0;i<numClusters;i++) answer.add(new HashMap<Integer, WeightedEdge>());
+
 		for(int v1=0;v1<clusterMemberships.length;v1++) {
-			Map<Integer,WeightedEdge> edgesGraphV1 = adjacencyList.get(v1);
-			for(WeightedEdge edge :edgesGraphV1.values()) {
+			Map<Integer,WeightedEdge> edgesGraphV1 = adjacencyList.get(v1); // Vecinos de v1
+			for(WeightedEdge edge :edgesGraphV1.values()) { // Para cada eje en los vecinos de v1
 				int c1 = clusterMemberships[edge.getV1()];
 				int c2 = clusterMemberships[edge.getV2()];
-				if(c1!=c2) {
-					WeightedEdge subgraphEdge = answer.get(c1).get(c2);
-					if(subgraphEdge==null) {
-						subgraphEdge = new WeightedEdge(c1, c2, edge.getWeight());
-						WeightedGraphClusteringAlgorithm.addEdge(answer, subgraphEdge);
-					} else
-						subgraphEdge.addWeight(edge.getWeight());
-				}
+				//if(c1!=c2) { // MELI -- Debo incluir también los pesos del cluster a él mismo.
+				WeightedEdge subgraphEdge = answer.get(c1).get(c2);
+				if(subgraphEdge==null) {
+					subgraphEdge = new WeightedEdge(c1, c2, edge.getWeight());
+					WeightedGraphClusteringAlgorithm.addEdge(answer, subgraphEdge);
+				} else
+					subgraphEdge.addWeight(edge.getWeight());
+				//}
 			}
 		}
+		printGraphWeights(answer);
+
 		return answer;
 	}
+
 	private List<List<Integer>> updateClusters(int[] clusterMemberships, int[] subgraphClusterMemberships) {
 		for(int i=0;i<clusterMemberships.length;i++) {
 			int oldCluster = clusterMemberships[i];
@@ -154,6 +186,7 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		}
 		return answer;
 	}
+
 	private List<List<Integer>> createClusters(int[] clusterMemberships) {
 		Map<Integer,List<Integer>> clusters = new HashMap<Integer, List<Integer>>();
 		for(int i=0;i<clusterMemberships.length;i++) {

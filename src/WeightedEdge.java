@@ -11,7 +11,8 @@ public class WeightedEdge {
 		this.weight = weight;
 	}
 	public void addWeight(int w) {
-		weight+=weight;
+		//weight+=weight;
+		weight+=w; // MELI
 	}
 	public int getV1() {
 		return v1;

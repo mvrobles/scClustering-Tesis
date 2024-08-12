@@ -20,6 +20,8 @@ public interface WeightedGraphClusteringAlgorithm {
 			addEdge(adjList, edge);
 		}
 		return adjList;
+
+
 	}
 	public static void addEdge(List<Map<Integer, WeightedEdge>> adjList, WeightedEdge edge) {
 		adjList.get(edge.getV1()).put(edge.getV2(), edge);
