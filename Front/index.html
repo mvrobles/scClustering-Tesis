@@ -17,9 +17,8 @@
             <p class="navbar-text">Some text</p>
         </nav>
         <div class="d-flex justify-content-center p-3">
-
             <div class="container">
-                <h3>Ingrese el archivo</h3>
+                <h3>Ingrese el archivo h5 (PYTHON)</h3>
                 <form action='' method="POST" name="f1" id="f1" class="form-horizontal" role="form" >
                     <input type="file" id="fileInput" name="file" />
                     <input
@@ -30,6 +29,19 @@
                         onclick='SubmitVars(); this.disabled = true;'
                     >
                     <p id="answer">Answer </p>
+                </form>
+            </div>
+            <div class="container">
+                <h3>Ingrese el archivo de la matriz (JAVA)</h3>
+                <form action='' method="POST" name="f1" id="f1" class="form-horizontal" role="form" >
+                    <input
+                        type="submit"
+                        name="Submit"
+                        id="btn_id_submitjava"
+                        value="submit!"
+                        onclick='ReadJavaData(); this.disabled = true;'
+                    >
+                    <p id="answerJava">Answer </p>
                 </form>
             </div>
         </div>
