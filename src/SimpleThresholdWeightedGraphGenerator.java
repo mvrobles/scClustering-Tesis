@@ -11,7 +11,7 @@ public class SimpleThresholdWeightedGraphGenerator implements WeightedGraphGener
 		for(int i=0;i<samplesMatrix.length;i++) {
 			for(int j=i+1;j<samplesMatrix[i].length;j++) {
 				if(samplesMatrix[i][j]<threshold) continue;
-				int w = (int) (1000*samplesMatrix[i][j]);
+				double w = samplesMatrix[i][j]; // TODO MIRAR BIEN MELI
 				answer.add(new WeightedEdge(i, j, w));
 			}
 		}

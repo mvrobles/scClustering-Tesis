@@ -36,7 +36,7 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 				indexes.add(i);
 				subgraphClusterMemberships[i]=i;
 			}
-			int totalWeight = calculateTotalWeight(subgraphAdjacencyList);
+			double totalWeight = calculateTotalWeight(subgraphAdjacencyList);
 			boolean changed = false;
 			while(true) {
 				Collections.shuffle(indexes);
@@ -62,7 +62,7 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		return answer;
 	}
 
-	private int calculateNumberOfClusters(int [] array){ // Meli
+	private int calculateNumberOfClusters(int [] array){ 
 		Set<Integer> uniqueNumbers = new HashSet<>();
         for (int num : array) {
             uniqueNumbers.add(num);
@@ -71,8 +71,8 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		return numberOfUniqueNumbers;
 	}
 
-	private int calculateTotalWeight(List<Map<Integer, WeightedEdge>> subgraphAdjacencyList) {
-		int w = 0;
+	private double calculateTotalWeight(List<Map<Integer, WeightedEdge>> subgraphAdjacencyList) {
+		double w = 0;
 		for(Map<Integer, WeightedEdge> edgesN:subgraphAdjacencyList) {
 			for(WeightedEdge edge: edgesN.values()) {
 				w+=edge.weight;
@@ -95,7 +95,7 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		}
 	}
 
-	private int calculateBestCluster(List<Map<Integer,WeightedEdge>> adjacencyList, int[] clusterMemberships, int i, int totalEdges) {
+	private int calculateBestCluster(List<Map<Integer,WeightedEdge>> adjacencyList, int[] clusterMemberships, int i, double totalEdges) {
 		Map<Integer,WeightedEdge> edgesI = adjacencyList.get(i);
 		//if(i==0) System.out.println("Node: "+i+" edges: "+edgesI+" cluster: "+clusterMemberships[i]+ " totalEdges: "+totalEdges);
 		int cI = clusterMemberships[i];
@@ -119,7 +119,7 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 	}
 
 	
-	private double calculateModularityChange(List<Map<Integer, WeightedEdge>> adjacencyList, int[] clusterMemberships, int i, int j, int totalEdges) {
+	private double calculateModularityChange(List<Map<Integer, WeightedEdge>> adjacencyList, int[] clusterMemberships, int i, int j, double totalEdges) {
 		double currentM = calculateModularity(adjacencyList,clusterMemberships,clusterMemberships[i], totalEdges);
 		currentM += calculateModularity(adjacencyList,clusterMemberships,clusterMemberships[j], totalEdges);
 		int currentCluster = clusterMemberships[i];
@@ -130,9 +130,9 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 		return updatedM-currentM;
 	}
 
-	private double calculateModularity(List<Map<Integer, WeightedEdge>> adjacencyList, int[] clusterMemberships, int cluster, int totalEdges) {
-		int sumIn = 0;
-		int sumTot = 0;
+	private double calculateModularity(List<Map<Integer, WeightedEdge>> adjacencyList, int[] clusterMemberships, int cluster, double totalEdges) {
+		double sumIn = 0;
+		double sumTot = 0;
 		for(int i=0;i<clusterMemberships.length;i++) {
 			if(clusterMemberships[i]!=cluster) continue;
 			Map<Integer, WeightedEdge> edges = adjacencyList.get(i);
@@ -159,14 +159,12 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 			for(WeightedEdge edge :edgesGraphV1.values()) { // Para cada eje en los vecinos de v1
 				int c1 = clusterMemberships[edge.getV1()];
 				int c2 = clusterMemberships[edge.getV2()];
-				//if(c1!=c2) { // MELI -- Debo incluir también los pesos del cluster a él mismo.
 				WeightedEdge subgraphEdge = answer.get(c1).get(c2);
 				if(subgraphEdge==null) {
 					subgraphEdge = new WeightedEdge(c1, c2, edge.getWeight());
 					WeightedGraphClusteringAlgorithm.addEdge(answer, subgraphEdge);
 				} else
 					subgraphEdge.addWeight(edge.getWeight());
-				//}
 			}
 		}
 		printGraphWeights(answer);
@@ -208,7 +206,7 @@ public class LouvainClusteringAlgorithm implements WeightedGraphClusteringAlgori
 				String [] items = line.split(" ");
 				int v1 = Integer.parseInt(items[0]);
 				int v2 = Integer.parseInt(items[1]);
-				int w = Integer.parseInt(items[2]);
+				double w = Double.parseDouble(items[2]);
 				n = Math.max(n, v1+1);
 				n = Math.max(n, v2+1);
 				edges.add(new WeightedEdge(v1, v2, w));
