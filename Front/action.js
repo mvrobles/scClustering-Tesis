@@ -18,8 +18,7 @@ async function SubmitVars() {
   index_page.innerHTML = (responseText);
 }
 
-async function ReadJavaData() {
-    console.log("LLEGO HASTA ACA?")
+async function GreetUser() {
     console.log(JSON.stringify({"name": "Melissa", "age": 26}))
     const response = await fetch('http://127.0.0.1:8888/api/greet', {
       method: "POST",
@@ -28,8 +27,6 @@ async function ReadJavaData() {
         },
       body: JSON.stringify({"name": "Melissa", "age": 26})
     })
-
-    console.log("ALOOOOOOOOOOOOO")
   
     const responseText = await response.text();
     console.log(responseText); // logs 'OK'
@@ -37,22 +34,22 @@ async function ReadJavaData() {
     index_page.innerHTML = (responseText);
 }
 
-// async function ReadJavaData() {
+async function ReadJavaData() {
 
-//   const fileInput = document.getElementById('fileInputJava');
-//   const file = fileInput.files[0];
-//   const formData = new FormData();
-//   formData.append('file', file);
+  const fileInput = document.getElementById('fileInputJava');
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
 
-//   const response = await fetch('http://127.0.0.1:8888//api/greet', {
-//     method: "POST",
-//     body: formData
-//   })
+  const response = await fetch('http://127.0.0.1:8888/readCsvFile', {
+    method: "POST",
+    body: formData
+  })
 
-//   const responseText = await response.text();
-//   console.log(responseText); // logs 'OK'
-//   var index_page = document.getElementById("answerJava"); 
-//   index_page.style.color = "blue"; 
-//   if(JSON.stringify(responseText).indexOf('overlap') > -1){index_page.style.color = "red"};
-//   index_page.innerHTML = (responseText);
-// }
+  const responseText = await response.text();
+  console.log(responseText); // logs 'OK'
+  var index_page = document.getElementById("answerJava2"); 
+  index_page.style.color = "blue"; 
+  if(JSON.stringify(responseText).indexOf('overlap') > -1){index_page.style.color = "red"};
+  index_page.innerHTML = (responseText);
+}
