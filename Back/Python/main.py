@@ -42,6 +42,7 @@ async def cargar_analizar_datos(file: UploadFile = File(...)):
     x, _ = read_data(file.file)
     num_celulas = x.shape[0]
     num_genes = x.shape[1]
+    print(num_celulas, num_genes)
     return {"num_genes": num_genes, "num_celulas": num_celulas}
 
 

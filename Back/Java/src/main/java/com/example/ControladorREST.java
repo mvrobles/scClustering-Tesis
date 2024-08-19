@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Iterator;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -83,6 +84,45 @@ public class ControladorREST {
             Files.copy(file.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
             List<String> listCsv = loadIds(filepath.toString());
             String content = String.join(", ", listCsv);
+            
+            response.put("data", content);
+
+            Files.delete(filepath);
+            return ResponseEntity.ok(response);
+        }
+        catch(Exception e){
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+    }  
+
+    private List<List<Integer>> loadMtxMatrix(String directory) throws IOException{
+        List<List<Integer>> counts = new ArrayList<List<Integer>>();
+		try (CellRangerMatrixFileReader reader = new CellRangerMatrixFileReader(directory+"/matrix.mtx.gz")) {
+			Iterator<CellRangerCount> it = reader.iterator();
+			while (it.hasNext()) {
+				CellRangerCount count = it.next();
+				List<Integer> countList = new ArrayList<Integer>();
+				countList.add(count.getCellIdx());
+				countList.add(count.getGeneIdx());
+				countList.add((int) count.getCount());
+				counts.add(countList);
+			}
+		}
+        return counts;
+    }
+
+    @CrossOrigin
+    @PostMapping("/readMtxFile")
+    public ResponseEntity<Map<String,String>> readMtxFile(MultipartFile file) {
+        Map<String,String> response = new HashMap<>();
+        
+        String filename = file.getOriginalFilename();
+        Path filepath = Paths.get("/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Back/upload_temp", filename);
+        try{
+            Files.copy(file.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+            List<List<Integer>> counts = loadMtxMatrix(filepath.toString());
+            String content = counts.toString();
             
             response.put("data", content);
 
