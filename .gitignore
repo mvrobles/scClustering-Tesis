@@ -3,3 +3,5 @@ results/*
 **/.DS_Store
 RevisionMeli/*
 *.pyc
+Back/*
+Front/*

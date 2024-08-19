@@ -17,7 +17,7 @@ public class SCRNADataProcessor {
 		SCRNADataProcessor instance = new SCRNADataProcessor();
 		//instance.processMatrixH5(args[0], args[1]);
 		instance.processCellRangerMatrix(args[0], args[1]);
-
+		
 	}
 
 	private void processCellRangerMatrix(String directory, String outPrefix) throws IOException {

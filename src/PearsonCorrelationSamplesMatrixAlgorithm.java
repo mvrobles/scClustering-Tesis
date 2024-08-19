@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PearsonCorrelationSamplesMatrixAlgorithm implements SamplesMatrixAlgorithm {
 
-	private int numThreads = 8;
+	private int numThreads = 4;
 	@Override
 	public double[][] generateSamplesMatrix(ScRNAMatrix countsMatrix) {
 		int n = countsMatrix.getCellIds().size();
