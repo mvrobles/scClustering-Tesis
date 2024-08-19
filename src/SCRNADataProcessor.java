@@ -17,7 +17,7 @@ public class SCRNADataProcessor {
 		SCRNADataProcessor instance = new SCRNADataProcessor();
 		//instance.processMatrixH5(args[0], args[1]);
 		instance.processCellRangerMatrix(args[0], args[1]);
-		
+
 	}
 
 	private void processCellRangerMatrix(String directory, String outPrefix) throws IOException {
@@ -75,6 +75,13 @@ public class SCRNADataProcessor {
 		matrix.filterCells();
 		long time1 = System.currentTimeMillis();
 		System.out.println("Calculating matrix. Loading time: "+((time1-time0)/1000));
+		
+		time0 = System.currentTimeMillis();
+		int[][] completeMatrix = matrix.toMatrix(matrix.getCellIds(), matrix.getGeneIds(), matrix.getCountsByCell());
+		double[][] normalizedMatrix = matrix.normalizeMatrix(completeMatrix);
+		//matrix.printMatrix(normalizedMatrix);
+		time1 = System.currentTimeMillis();
+
 		SamplesMatrixAlgorithm algMatrix = new PearsonCorrelationSamplesMatrixAlgorithm();
 		//SamplesMatrixAlgorithm algMatrix = new JaccardBestCountsSamplesMatrixAlgorithm();
 		double [][] correlations = algMatrix.generateSamplesMatrix(matrix);

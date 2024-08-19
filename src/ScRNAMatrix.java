@@ -46,26 +46,14 @@ public class ScRNAMatrix {
             geneIds.add("gen" + i);
         }
 
-		System.out.println("----> Leyó la matriz");
 		ScRNAMatrix instance = new ScRNAMatrix(cellIds, geneIds, counts);
-		System.out.println("----> Creó el objeto de la matriz");
 		int[][] matrix = toMatrix(instance.cellIds, instance.geneIds, instance.countsByCell);
 
-		System.out.println("----> Lo pasó a matriz");
-		for (int i = 0; i < matrix.length; i++){
-			System.out.println("\n");
-			for (int j = 0; j < matrix[i].length; j ++){
-				System.out.print(matrix[i][j] + " ");
-			}
-		}
-
 		double [][] matrixNorm = normalizeMatrix(matrix);
-
-		System.out.println("----> Lo normalizó");
 		printMatrix(matrixNorm);
 	}
 
-	private static void printMatrix(double[][] matrixNorm) {
+	public static void printMatrix(double[][] matrixNorm) {
 		for (int i = 0; i < matrixNorm.length; i++){
 			System.out.println("\n");
 			for (int j = 0; j < matrixNorm[i].length; j ++){
@@ -109,6 +97,10 @@ public class ScRNAMatrix {
 	public List<String> getGeneIds() {
 		return geneIds;
 	}
+	public List<Map<Integer, Short>> getCountsByCell(){
+		return countsByCell;
+	}
+
 	public Map<Integer,Short> getCountsCell(int cellIdx, int minValue) {
 		Map<Integer,Short> answer = new TreeMap<Integer, Short>();
 		for(Map.Entry<Integer,Short> entry:countsByCell.get(cellIdx).entrySet()) {
@@ -208,7 +200,6 @@ public class ScRNAMatrix {
                 matrix[i][geneIndex] = count;
             }
         }
-
         return matrix;
     }
 
@@ -297,4 +288,5 @@ public class ScRNAMatrix {
 
 		return matrixNew;
 	}
+
 }
