@@ -1,5 +1,6 @@
 package src;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,13 +18,17 @@ public class SCRNADataProcessor {
 		SCRNADataProcessor instance = new SCRNADataProcessor();
 		//instance.processMatrixH5(args[0], args[1]);
 		instance.processCellRangerMatrix(args[0], args[1]);
-
 	}
 
 	private void processCellRangerMatrix(String directory, String outPrefix) throws IOException {
 		System.out.println("Loading cellRanger dataset");
 		ScRNAMatrix matrix = loadCellRangerMatrix(directory);
 		System.out.println("Loaded matrix");
+		File theDir = new File(outPrefix);
+		if (!theDir.exists()){
+			theDir.mkdirs();
+			System.out.println("Output folder created " + outPrefix);
+		}
 		processMatrix(matrix, outPrefix);
 	}
 
@@ -77,9 +82,13 @@ public class SCRNADataProcessor {
 		System.out.println("Calculating matrix. Loading time: "+((time1-time0)/1000));
 		
 		time0 = System.currentTimeMillis();
-		int[][] completeMatrix = matrix.toMatrix(matrix.getCellIds(), matrix.getGeneIds(), matrix.getCountsByCell());
-		double[][] normalizedMatrix = matrix.normalizeMatrix(completeMatrix);
-		//matrix.printMatrix(normalizedMatrix);
+		//double[][] completeMatrix = matrix.toMatrix(matrix.getCellIds(), matrix.getGeneIds(), matrix.getCountsByCell());
+		//System.out.println("Matriz completa");
+		//completeMatrix = matrix.normalizeMatrix(completeMatrix);
+		//System.out.println("Matriz normalizada");
+		//matrix = new ScRNAMatrix(matrix.getCellIds(), matrix.getGeneIds(), normalizedMatrix); // Out of memory
+		matrix.updateValues(matrix.normalizeMatrix(matrix.toMatrix()));
+
 		time1 = System.currentTimeMillis();
 
 		SamplesMatrixAlgorithm algMatrix = new PearsonCorrelationSamplesMatrixAlgorithm();

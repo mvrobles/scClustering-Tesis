@@ -13,6 +13,7 @@ public class PearsonCorrelationSamplesMatrixAlgorithm implements SamplesMatrixAl
 	@Override
 	public double[][] generateSamplesMatrix(ScRNAMatrix countsMatrix) {
 		int n = countsMatrix.getCellIds().size();
+		System.out.println("Número de células " + n);
 		double [][] answer = new double [n][n];
 		ThreadPoolExecutor pool = new ThreadPoolExecutor(numThreads, numThreads, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		for(int i=0;i<n;i++) {
@@ -40,23 +41,23 @@ public class PearsonCorrelationSamplesMatrixAlgorithm implements SamplesMatrixAl
 			answer[i][i] = 1;
 			return;
 		}
-		Map<Integer,Short> valuesi = countsMatrix.getCountsCell(i, 0);
+		Map<Integer,Double> valuesi = countsMatrix.getCountsCell(i, 0);
 		if(valuesi==null) return;
 		
-		Map<Integer,Short> valuesj = countsMatrix.getCountsCell(j, 0);
+		Map<Integer,Double> valuesj = countsMatrix.getCountsCell(j, 0);
 		if(valuesj==null) return;
 		Set<Integer> geneIdxs = new HashSet<Integer>(valuesi.keySet());
 		geneIdxs.addAll(valuesj.keySet());
 		answer[i][j] = calculateCorrelation(geneIdxs,valuesi,valuesj);
 		answer[j][i] = answer[i][j];
 		if(i==debugI && j==1) {
-			printCounts (i,geneIdxs, valuesi);
-			printCounts (j,geneIdxs, valuesj);
+			printCounts(i,geneIdxs, valuesi);
+			printCounts(j,geneIdxs, valuesj);
 			System.out.println("Correl: "+answer[i][j]);
 		}
 		if(i%50==0 && j==answer.length-1) System.out.println("Calculated correlations for cell: "+i);
 	}
-	private double calculateCorrelation(Set<Integer> geneIdxs, Map<Integer, Short> valuesi, Map<Integer, Short> valuesj) {
+	private double calculateCorrelation(Set<Integer> geneIdxs, Map<Integer, Double> valuesi, Map<Integer, Double> valuesj) {
 		int n = geneIdxs.size();
 		double si = calculateSum(valuesi.values());
 		double sj = calculateSum(valuesj.values());
@@ -64,8 +65,8 @@ public class PearsonCorrelationSamplesMatrixAlgorithm implements SamplesMatrixAl
 		double avgj = sj/n;
 		double sd1=0,sd2=0,sc=0;
 		for(int g:geneIdxs) {
-			short vi = valuesi.getOrDefault(g, (short) 0);
-			short vj = valuesj.getOrDefault(g, (short) 0);
+			double vi = valuesi.getOrDefault(g, (double) 0);
+			double vj = valuesj.getOrDefault(g, (double) 0);
 			
 			double di = vi-avgi;
 			double dj = vj-avgj;
@@ -77,17 +78,16 @@ public class PearsonCorrelationSamplesMatrixAlgorithm implements SamplesMatrixAl
 		sd2 = Math.sqrt(sd2);
 		return sc/(sd1*sd2);
 	}
-	private void printCounts(int cellIdx,Set<Integer> geneIdxs,  Map<Integer, Short> values) {
+	private void printCounts(int cellIdx,Set<Integer> geneIdxs,  Map<Integer, Double> values) {
 		System.out.println("Counts cell: "+cellIdx);
 		for(int g:geneIdxs) {
-			System.out.println("gene: "+g+" count: "+values.getOrDefault(g, (short) 0));
+			System.out.println("gene: "+g+" count: "+values.getOrDefault(g, (double) 0));
 		}
 	}
 	
-	private int calculateSum(Collection<Short> values) {
+	private int calculateSum(Collection<Double> values) {
 		int answer = 0;
-		for(short v:values) answer+=v;
+		for(double v:values) answer+=v;
 		return answer;
 	}
-
 }

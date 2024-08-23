@@ -37,10 +37,10 @@ public class JaccardBestCountsSamplesMatrixAlgorithm implements SamplesMatrixAlg
 			answer[i][i] = 1;
 			return;
 		}
-		Map<Integer,Short> valuesi = countsMatrix.getCountsCell(i, 5);
+		Map<Integer,Double> valuesi = countsMatrix.getCountsCell(i, 5);
 		if(valuesi==null) return;
 		
-		Map<Integer,Short> valuesj = countsMatrix.getCountsCell(j, 5);
+		Map<Integer,Double> valuesj = countsMatrix.getCountsCell(j, 5);
 		if(valuesj==null) return;
 		
 		Set<Integer> sInter = new HashSet<Integer>(valuesi.keySet());
