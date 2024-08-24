@@ -4,3 +4,4 @@ results/*
 *.pyc
 RevisionMeli/*
 temp/*
+*/upload_temp/*
