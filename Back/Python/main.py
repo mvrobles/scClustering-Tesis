@@ -11,7 +11,9 @@ import sys
 
 from read_data import *
 from sc_experiment import *
+from generate_outputs import *
 from kMST import *
+import time
 
 app = FastAPI()
 
@@ -64,12 +66,7 @@ async def cargar_datos(file_mtx: UploadFile = File(...),
         path_barcodes = download_to_local(file_barcodes, folder_path)
         path_features = download_to_local(file_genes, folder_path)
         
-        barcodes = read_tsv_gz(path_barcodes)
-        print('Leyó barcodes', barcodes.shape)
-        genes = read_tsv_gz(path_features)
-        print('Leyó genes', genes.shape)
-        x = read_mtx_gz(path_mtx).T
-        print('Leyó matriz', x.shape)
+        barcodes, genes, x = read_data_scexperiment(path_mtx, path_barcodes, path_features)
 
         anndata_p = sc.AnnData(x)
         anndata_p.obs = barcodes
@@ -82,27 +79,51 @@ async def cargar_datos(file_mtx: UploadFile = File(...),
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": "Error al leer el archivo"}, message ={e})
     
-    return {"num_genes": x.shape[0], "num_celulas": x.shape[1]}
+    return {"num_genes": x.shape[0], "num_celulas": x.shape[1], "status": 200}
+
+def read_data_scexperiment(path_mtx, path_barcodes, path_features):
+    if 'gz' in path_barcodes:
+      barcodes = read_tsv_gz(path_barcodes)
+    else:
+      barcodes = read_tsv(path_barcodes)
+    print('Leyó barcodes', barcodes.shape)
+
+    if 'gz'in path_features:
+      genes = read_tsv_gz(path_features)
+    else:
+       genes = read_tsv(path_features)
+    print('Leyó genes', genes.shape)
+
+    if 'gz' in path_mtx:
+      x = read_mtx_gz(path_mtx).T
+    else:
+      x = read_mtx(path_mtx).T
+    print('Leyó matriz', x.shape)
+    return barcodes,genes,x
     
 @app.post("/CorrerModelo")
 async def correr_kmst():
     """
     Runs the KMST model on a single cell experiment.
-    
+
     Returns:
       dict: A dictionary with a message indicating whether the model was run successfully or not.
     """
     try:
-        print('\n\nSINGLE CELL EXPERIMENT\n\n', single_cell_experiment)
-        run_kmst(X = single_cell_experiment.matrix, 
+        start_time = time.time()
+        clusters = run_kmst(X = single_cell_experiment.matrix, 
                  barcodes = single_cell_experiment.barcodes, 
-                 features = single_cell_experiment.genes, 
                  path_results = '../upload_temp/results/', 
                  filter = 'mean-variance')
+        end_time = time.time()
+        generate_outputs(x = single_cell_experiment.matrix, 
+                         clusters = clusters.cluster, 
+                         output_path = '../upload_temp/results/')
+        execution_time = round(end_time - start_time,2)
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": "Error al correr el modelo"}, message ={e})
     
-    return {"message": "Modelo corrido correctamente"}
+    return {"message": "Modelo corrido correctamente", "time": execution_time}
 
 def read_data(file):
   data_mat = h5py.File(file)

@@ -12,6 +12,13 @@ def read_mtx_gz(file) -> csc_matrix:
     """
     with gzip.open(file, 'rt') as f:
         return mmread(f).tocsc().toarray().astype(np.float32)
+    
+def read_mtx(file) -> csc_matrix:
+    """
+    Reads a .mtx file and returns a sparse matrix.
+    """
+    with open(file, 'rt') as f:
+        return mmread(f).tocsc().toarray().astype(np.float32)
 
 def download_to_local(file, local_folder) -> str:
     """
@@ -27,5 +34,13 @@ def read_tsv_gz(file):
     Reads a .tsv.gz file and returns a DataFrame.
     """
     with gzip.open(file, 'rt') as f:
+        df = pd.read_csv(f, sep='\t', header=None)
+    return df
+
+def read_tsv(file):
+    """
+    Reads a .tsv file and returns a DataFrame.
+    """
+    with open(file, 'r') as f:
         df = pd.read_csv(f, sep='\t', header=None)
     return df

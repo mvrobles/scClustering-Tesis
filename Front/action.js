@@ -37,12 +37,36 @@ async function LeerArchivos() {
 
   const responseText = await response.text();
   console.log(responseText); // logs 'OK'
+  var index_page = document.getElementById("mensajeCarga"); 
+  index_page.style.color = "blue"; 
+  index_page.innerHTML = (responseText);
+
+  console.log(JSON.parse(responseText));
+  if (JSON.parse(responseText).status === 200) {
+    document.getElementById("graph-based").style.visibility = "visible";
+    document.getElementById("neural-network").style.visibility = "visible";
+    document.getElementById("bayesian-models").style.visibility = "visible";
+    document.getElementById("seleccione-algoritmo-text").style.visibility = "visible";
+  }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("graph-based").addEventListener("click", function() {
+    window.location.href = "graphBasedAlgorithm.html";
+  });
+});
 
 async function CorrerModelo(){
   const response = await fetch('http://127.0.0.1:8080/CorrerModelo/', {
     method: "POST",
-  })
+  });
+
+  console.log(response.status);
+  const responseText = await response.text();
+  if (response.status === 200) {
+    console.log("ENTRO AL IF");
+    document.getElementById("imagenesResultados").style.visibility = "visible";
+  }
 }
 
 async function SubmitVars() {
@@ -65,7 +89,6 @@ async function SubmitVars() {
   if(JSON.stringify(responseText).indexOf('overlap') > -1){index_page.style.color = "red"};
   index_page.innerHTML = (responseText);
 }
-
 
 async function GreetUser() {
     console.log(JSON.stringify({"name": "Melissa", "age": 26}))

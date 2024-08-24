@@ -1,26 +1,18 @@
-import argparse
-import os
 import pickle
 import warnings
-from scipy.optimize import curve_fit
-
-import h5py
-import matplotlib.pyplot as plt
+from typing import Tuple
 import networkx as nx
 import numpy as np
 import pandas as pd
 import scanpy as sc
 import seaborn as sns
-from numpy.linalg import norm
+from scipy.optimize import curve_fit
 from scipy.optimize import linear_sum_assignment
-from scipy.spatial import distance
-from scipy.stats import pearsonr
-from sklearn import metrics
 from sklearn.decomposition import PCA
-from sklearn.metrics import (calinski_harabasz_score, davies_bouldin_score, silhouette_score)
+from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score, silhouette_score
 from tqdm import tqdm
 
-
+import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
 def normalize(adata, filter_min_counts=True, logtrans_input=True):
@@ -64,22 +56,13 @@ def filter_genes_mean_variance(X):
     return X_filtered
 
 def paint_matrix(correlaciones, output_path, name):
-    plt.Figure()
+    plt.figure()
     sns.heatmap(correlaciones)
     plt.savefig(output_path + name + '.png')
-
+    plt.close()
 
 def get_correlations(X):
     correlaciones = np.corrcoef(X)
-    
-    #celulas = X.shape[0]
-    # correlaciones = np.zeros((celulas, celulas))
-    # for i in tqdm(range(celulas)):
-    #     for j in range(i, celulas):
-    #         corr = pearsonr(X[i, :], X[j, :])[0]
-    #         correlaciones[i, j] = corr 
-    #         correlaciones[j, i] = corr 
-
     return correlaciones
 
 def save_matrix(correlaciones, output_path, name):
@@ -145,65 +128,18 @@ def louvain(grafo):
 
     return clusters
 
-def cluster_acc_plot(y_true, y_pred):
-    y_true = y_true.astype(np.int64)
-    y_pred = y_pred.astype(np.int64)
-    assert y_pred.size == y_true.size
-    D = max(y_pred.max(), y_true.max()) + 1
-    w = np.zeros((D, D), dtype=np.int64)
-    for i in range(y_pred.size):
-        w[y_pred[i], y_true[i]] += 1
-    ind = linear_sum_assignment(w.max() - w)
-    
-    plt.figure(figsize = (10,7))
-    w_order = np.zeros((D, D), dtype=np.int64)
-    for i in range(D):
-        for j in range(D):
-            w_order[i,j] = w[i, ind[1][j]]
-
-    df_cm = pd.DataFrame(w_order, index = [i for i in range(D)], columns = [i for i in ind[1]])
-    plt.figure(figsize = (10,7))
-    sns.heatmap(df_cm, annot=True, fmt='g')
-    plt.ylabel("Prediction")
-    plt.xlabel("Ground Truth")
-    plt.show()
-    
-def cluster_acc(y_true, y_pred):
-    """
-    Calculate clustering accuracy. Require scikit-learn installed
-    # Arguments
-        y: true labels, numpy.array with shape `(n_samples,)`
-        y_pred: predicted labels, numpy.array with shape `(n_samples,)`
-    # Return
-        accuracy, in [0,1]
-    """
-    y_true = y_true.astype(np.int64)
-    y_pred = y_pred.astype(np.int64)
-
-    assert y_pred.size == y_true.size
-    D = max(y_pred.max(), y_true.max()) + 1
-    w = np.zeros((D, D), dtype=np.int64)
-    for i in range(y_pred.size):
-        w[y_pred[i], y_true[i]] += 1
-        
-    ind = linear_sum_assignment(w.max() - w)
-    ind = np.asarray(ind)
-    ind = np.transpose(ind)
-
-    return sum([w[i, j] for i, j in ind]) * 1.0 / y_pred.size
-
 def run_kmst(X: np.array, 
              barcodes: pd.DataFrame, 
-             features: pd.DataFrame, 
              path_results: str, 
-             filter: str) -> None:
+             filter: str) -> pd.DataFrame:
     # Converting to AnnData
     anndata_p = sc.AnnData(X)
     anndata_p.obs = barcodes
-    anndata_p.var = features
 
     # Normalize 
     anndata_p = normalize(anndata_p)
+    barcodes = anndata_p.obs
+
     print(f"Se normalizaron correctamente los datos. Dimensiones: {anndata_p.X.shape}")
     
     X = anndata_p.X
@@ -229,15 +165,16 @@ def run_kmst(X: np.array,
     kmst = create_kMST(distance_matrix = correlaciones, 
                        inverse = True, 
                        threshold = 0)
-    
     print('-----> Terminó la creación del grafo kMST para k = logN')
 
     with open(path_results + 'kmst_graph.pickle', 'wb') as file:
         pickle.dump(kmst, file)
-
     print(f'-----> Se guardó correctamente el grafo kMST en {path_results}')
 
     # Clustering
     clusters = louvain(kmst)
-    with open(path_results + 'clusers_kmst.pickle', "wb") as file:
-        pickle.dump(clusters, file)
+    barcodes['cluster'] = clusters
+    barcodes.to_csv(path_results + 'clusters.csv', index = False)
+    print(f'-----> Se guardó correctamente el csv {path_results}')
+
+    return barcodes
