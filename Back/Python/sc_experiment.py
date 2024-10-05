@@ -4,10 +4,12 @@ class ScExperiment:
     def __init__(self, 
                  matrix: csc_matrix,
                  barcodes: list,
-                 genes: list) -> None:
+                 genes: list,
+                 n_clusters: int = None) -> None:
         self.matrix = matrix
         self.barcodes = barcodes
         self.genes = genes
+        self.n_clusters = n_clusters
 
     def verify_data(self) -> bool:
         """
@@ -17,6 +19,9 @@ class ScExperiment:
         assert self.matrix.shape[1] == len(self.genes), "Number of genes does not match the number of genes"
         assert len(self.barcodes) > 0, "No barcodes found"
         assert len(self.genes) > 0, "No genes found"
+        if self.n_clusters is not None:
+            assert self.n_clusters > 0, "Number of clusters must be greater than 0"
+            assert self.n_clusters < len(self.barcodes), "Number of clusters must be less than the number of cells"
 
         return True
     

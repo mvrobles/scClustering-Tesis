@@ -57,7 +57,8 @@ def filter_genes_mean_variance(X):
 
 def paint_matrix(correlaciones, output_path, name):
     plt.figure()
-    sns.heatmap(correlaciones)
+    sns.heatmap(correlaciones).set(
+        title = 'Correlaciones entre células')
     plt.savefig(output_path + name + '.png')
     plt.close()
 

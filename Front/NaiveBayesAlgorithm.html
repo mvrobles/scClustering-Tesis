@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Graph based clustering algorithm</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="action.js"></script>
+    <style>
+        .btn-custom {
+            background-color: #8ebbeb; 
+            color: black;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3; 
+        }
+        .dropdown-menu-custom {
+            background-color: #cdddee; /* Change this to your desired color */
+            color: black; /* Change this to your desired text color */
+        }
+        .dropdown-menu-custom .dropdown-item:hover {
+            background-color: #cdddee; /* Change this to your desired hover color */
+            color: white; /* Change this to your desired hover text color */
+        }
+        .responsive-img {
+            max-width: 100%; 
+            height: auto; 
+        }
+        .dropdown-toggle::after {
+            margin-left: 0.5rem; /* Adjust the space after the dropdown icon */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid btn-custom text-black" style="height: 50px;"></div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h1>Aproximación basada en estadística Bayesiana</h1>
+                <p>El proceso comienza con la extracción de datos de células individuales (a), seguido por la consolidación de la matriz de conteos a nivel de gen por cada célula (b). Luego, se realiza la normalización de los datos para mantener un conteo homogéneo en todas las células de la muestra y asegurar una comparación justa. Posteriormente, se lleva a cabo el cálculo de correlaciones de Pearson (d) entre las distintas células. Con esta información, se procede a la construcción del grafo (e), donde cada nodo representa una célula y las aristas representan las correlaciones. El grafo resultante es el k-MST del grafo completo de correlaciones. Finalmente, se realiza la detección de comunidades con el algoritmo de Louvain (f) dentro del grafo para identificar grupos de células que comparten características similares.</p>                
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-2">
+                        <button class="btn btn-secondary dropdown-toggle dropdown-menu-custom" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Selecciona un tejido
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Adipose Tissue</a>
+                            <a class="dropdown-item" href="#">Bone Marrow</a>
+                            <a class="dropdown-item" href="#">Brain</a>
+                            <a class="dropdown-item" href="#">Breast</a>
+                            <a class="dropdown-item" href="#">Bronchus</a>
+                            <a class="dropdown-item" href="#">Colon</a>
+                            <a class="dropdown-item" href="#">Endometrium</a>
+                            <a class="dropdown-item" href="#">Esophagus</a>
+                            <a class="dropdown-item" href="#">Eye</a>
+                            <a class="dropdown-item" href="#">Fallopian Tube</a>
+                            <a class="dropdown-item" href="#">Heart Muscle</a>
+                            <a class="dropdown-item" href="#">Kidney</a>
+                            <a class="dropdown-item" href="#">Liver</a>
+                            <a class="dropdown-item" href="#">Lung</a>
+                            <a class="dropdown-item" href="#">Lymph Node</a>
+                            <a class="dropdown-item" href="#">Ovary</a>
+                            <a class="dropdown-item" href="#">Pancreas</a>
+                            <a class="dropdown-item" href="#">PBMC</a>
+                            <a class="dropdown-item" href="#">Placenta</a>
+                            <a class="dropdown-item" href="#">Prostate</a>
+                            <a class="dropdown-item" href="#">Rectum</a>
+                            <a class="dropdown-item" href="#">Salivary Gland</a>
+                            <a class="dropdown-item" href="#">Skeletal Muscle</a>
+                            <a class="dropdown-item" href="#">Skin</a>
+                            <a class="dropdown-item" href="#">Small Intestine</a>
+                            <a class="dropdown-item" href="#">Spleen</a>
+                            <a class="dropdown-item" href="#">Stomach</a>
+                            <a class="dropdown-item" href="#">Testis</a>
+                            <a class="dropdown-item" href="#">Thymus</a>
+                            <a class="dropdown-item" href="#">Tongue</a>
+                            <a class="dropdown-item" href="#">Vascular</a>
+                        </div>
+                    </div>
+                    <input
+                        type="submit"
+                        name="Submit"
+                        id="cargar"
+                        class="btn btn-custom btn-block mb-2"
+                        value="Correr modelo"
+                        style="width: 100%;"
+                        onclick='CorrerModelo(); this.disabled = true;'
+                    >
+                </div>
+            </div>
+            <div class="col-md-6">
+                <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Front/images/naiveBayes.png" alt="Flowers in Chania" class="responsive-img">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Back/upload_temp/results/correlaciones_heatmap.png" 
+                id="ImagenCorrelaciones" 
+                style="visibility: hidden;"
+                class="responsive-img" 
+                alt="Correlaciones Heatmap">
+            </div>
+            <div class="col-md-4">
+                <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Back/upload_temp/results/cluster_distributions.png" 
+                id = "ImagenDistribuciones" 
+                style="visibility: hidden;"
+                class="responsive-img" 
+                alt="Cluster Distributions">
+            </div>
+            <div class="col-md-4">
+                <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Back/upload_temp/results/tsne_clusters.png" 
+                id = "tSNEClusters" 
+                style="visibility: hidden;"
+                class="responsive-img"
+                alt="tSNE Clusters">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

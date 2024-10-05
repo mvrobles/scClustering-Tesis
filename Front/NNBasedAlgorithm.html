@@ -27,8 +27,9 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-6">
-                <h1>Aproximación basada en grafos</h1>
-                <p>El proceso comienza con la extracción de datos de células individuales (a), seguido por la consolidación de la matriz de conteos a nivel de gen por cada célula (b). Luego, se realiza la normalización de los datos para mantener un conteo homogéneo en todas las células de la muestra y asegurar una comparación justa. Posteriormente, se lleva a cabo el cálculo de correlaciones de Pearson (d) entre las distintas células. Con esta información, se procede a la construcción del grafo (e), donde cada nodo representa una célula y las aristas representan las correlaciones. El grafo resultante es el k-MST del grafo completo de correlaciones. Finalmente, se realiza la detección de comunidades con el algoritmo de Louvain (f) dentro del grafo para identificar grupos de células que comparten características similares.</p>                
+                <h1>Aproximación basada en aprendizaje profundo</h1>
+                <p> La red neuronal se preentrena utilizando la función de pérdida de log-likelihood de la distribución ZINB, comúnmente utilizada para modelar datos de Single Cell. Posteriormente, en la etapa de ajuste, se optimiza la representación latente mediante una pérdida basada en el Modelo de Mezcla Gaussiana. Durante este proceso, la red neuronal aprende los parámetros de cada gaussiana, que incluyen una probabilidad prior π, la media μ y la matriz de covarianza Σ para cada grupo. El resultado que se obtiene es una probabilidad de cada célula de pertenecer a cada uno de los grupos generados. Para la generación de los grupos es necesario conocer el número de clusters a generar.</p>                
+                <input type="text" class="form-control mb-2" id = "n_clusters" placeholder="Número de clusters">
                 <input
                     type="submit"
                     name="Submit"
@@ -36,11 +37,11 @@
                     class="btn btn-custom btn-block mb-2"
                     value="Correr modelo"
                     style="width: 100%;"
-                    onclick='CorrerModeloGrafos(); this.disabled = true;'
+                    onclick='CorrerModeloGMM(); this.disabled = true;'
                 >                             
             </div>
             <div class="col-md-6">
-                <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Front/images/graphbased.png" alt="Flowers in Chania" class="responsive-img">
+                <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Front/images/nnbased.png" alt="Flowers in Chania" class="responsive-img">
             </div>
         </div>
         <div class="row">

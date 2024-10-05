@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+# uvicorn main:app --reload --port 8080
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
@@ -9,6 +10,7 @@ import numpy as np
 import os
 import sys
 
+from NN_run_GMM import run_GMM
 from read_data import *
 from sc_experiment import *
 from generate_outputs import *
@@ -101,7 +103,7 @@ def read_data_scexperiment(path_mtx, path_barcodes, path_features):
     print('Leyó matriz', x.shape)
     return barcodes,genes,x
     
-@app.post("/CorrerModelo")
+@app.post("/CorrerModeloGrafos")
 async def correr_kmst():
     """
     Runs the KMST model on a single cell experiment.
@@ -111,19 +113,50 @@ async def correr_kmst():
     """
     try:
         start_time = time.time()
+        results_path = '../upload_temp/results/'
+        
         clusters = run_kmst(X = single_cell_experiment.matrix, 
-                 barcodes = single_cell_experiment.barcodes, 
-                 path_results = '../upload_temp/results/', 
-                 filter = 'mean-variance')
+                         barcodes = single_cell_experiment.barcodes, 
+                         path_results = results_path, 
+                         filter = 'mean-variance')
         end_time = time.time()
         generate_outputs(x = single_cell_experiment.matrix, 
                          clusters = clusters.cluster, 
-                         output_path = '../upload_temp/results/')
+                         output_path = results_path)
         execution_time = round(end_time - start_time,2)
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": "Error al correr el modelo"}, message ={e})
     
     return {"message": "Modelo corrido correctamente", "time": execution_time}
+
+@app.post("/CorrerModeloGMM")
+async def correr_nn_gmm(request: Request):
+  """
+  Runs the NN model on a single cell experiment.
+
+  Returns:
+    dict: A dictionary with a message indicating whether the model was run successfully or not.
+  """
+  try:
+      data = await request.json()
+      n_clusters = int(data['n_clusters'])
+      single_cell_experiment.n_clusters = n_clusters
+      
+      start_time = time.time()
+      clusters = run_GMM(X = single_cell_experiment.matrix, 
+                barcodes = single_cell_experiment.barcodes,
+                path_results = '../upload_temp/results/',
+                n_clusters = single_cell_experiment.n_clusters)
+      end_time = time.time()
+      generate_outputs(x = single_cell_experiment.matrix, 
+                        clusters = clusters.cluster, 
+                        output_path = '../upload_temp/results/')
+      execution_time = round(end_time - start_time,2)
+  except Exception as e:
+      return JSONResponse(status_code=400, content={"message": "Error al correr el modelo"}, message ={e})
+  
+  return {"message": "Modelo corrido correctamente", "time": execution_time}
+   
 
 def read_data(file):
   data_mat = h5py.File(file)

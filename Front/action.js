@@ -37,12 +37,15 @@ async function LeerArchivos() {
 
   const responseText = await response.text();
   console.log(responseText); // logs 'OK'
-  var index_page = document.getElementById("mensajeCarga"); 
-  index_page.style.color = "blue"; 
-  index_page.innerHTML = (responseText);
+
 
   console.log(JSON.parse(responseText));
   if (JSON.parse(responseText).status === 200) {
+    var index_page = document.getElementById("mensajeCarga"); 
+    index_page.style.color = "black"; 
+    const responseData = JSON.parse(responseText);
+    index_page.innerHTML = `¡Carga exitosa! Se procesó el experimento de scRNA-seq con ${responseData.num_celulas} células y ${responseData.num_genes} genes.`;
+
     document.getElementById("graph-based").style.visibility = "visible";
     document.getElementById("neural-network").style.visibility = "visible";
     document.getElementById("bayesian-models").style.visibility = "visible";
@@ -54,10 +57,18 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("graph-based").addEventListener("click", function() {
     window.location.href = "graphBasedAlgorithm.html";
   });
+
+  document.getElementById("neural-network").addEventListener("click", function() {
+    window.location.href = "NNBasedAlgorithm.html";
+  });
+
+  document.getElementById("bayesian-models").addEventListener("click", function() {
+    window.location.href = "NaiveBayesAlgorithm.html";
+  });
 });
 
-async function CorrerModelo(){
-  const response = await fetch('http://127.0.0.1:8080/CorrerModelo/', {
+async function CorrerModeloGrafos(){
+  const response = await fetch('http://127.0.0.1:8080/CorrerModeloGrafos/', {
     method: "POST",
   });
 
@@ -65,7 +76,26 @@ async function CorrerModelo(){
   const responseText = await response.text();
   if (response.status === 200) {
     console.log("ENTRO AL IF");
-    document.getElementById("imagenesResultados").style.visibility = "visible";
+    document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
+    document.getElementById("ImagenDistribuciones").style.visibility = "visible";
+    document.getElementById("tSNEClusters").style.visibility = "visible";
+  }
+}
+
+async function CorrerModeloGMM(){
+  let n_clusters = document.getElementById("n_clusters").value;
+  console.log("Número de clusters:");
+  console.log(n_clusters);
+  const response = await fetch('http://127.0.0.1:8080/CorrerModeloGMM/', {
+    method: "POST",
+    body: JSON.stringify({n_clusters:n_clusters})
+  });
+
+  console.log(response.status);
+  if (response.status === 200) {
+    document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
+    document.getElementById("ImagenDistribuciones").style.visibility = "visible";
+    document.getElementById("tSNEClusters").style.visibility = "visible";
   }
 }
 
@@ -88,22 +118,6 @@ async function SubmitVars() {
   index_page.style.color = "blue"; 
   if(JSON.stringify(responseText).indexOf('overlap') > -1){index_page.style.color = "red"};
   index_page.innerHTML = (responseText);
-}
-
-async function GreetUser() {
-    console.log(JSON.stringify({"name": "Melissa", "age": 26}))
-    const response = await fetch('http://127.0.0.1:8888/api/greet', {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-        },
-      body: JSON.stringify({"name": "Melissa", "age": 26})
-    })
-  
-    const responseText = await response.text();
-    console.log(responseText); // logs 'OK'
-    var index_page = document.getElementById("answerJava"); 
-    index_page.innerHTML = (responseText);
 }
 
 async function ReadJavaData() {
