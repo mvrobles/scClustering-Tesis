@@ -10,11 +10,11 @@ import numpy as np
 import os
 import sys
 
-from NN_run_GMM import run_GMM
+from Back.Python.NeuralNetwork.NN_run_GMM import run_GMM
 from read_data import *
 from sc_experiment import *
 from generate_outputs import *
-from kMST import *
+from Back.Python.GraphBased.kMST import *
 import time
 
 app = FastAPI()

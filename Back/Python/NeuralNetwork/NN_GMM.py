@@ -14,7 +14,7 @@ from torch.autograd import Variable
 from torch.nn import Parameter
 from torch.utils.data import DataLoader, TensorDataset
 
-from layers import ClusteringLoss, DispAct, MeanAct, ZINBLoss
+from Back.Python.NeuralNetwork.layers import ClusteringLoss, DispAct, MeanAct, ZINBLoss
 
 #import sys
 #sys.path.append('../')
