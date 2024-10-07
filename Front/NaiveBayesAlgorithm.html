@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es"> <!-- Cambié a español -->
 <head>
     <title>Graph based clustering algorithm</title>
     <meta charset="utf-8">
@@ -46,37 +46,37 @@
                             Selecciona un tejido
                         </button>
                         <div class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#">Adipose Tissue</a>
-                            <a class="dropdown-item" href="#">Bone Marrow</a>
-                            <a class="dropdown-item" href="#">Brain</a>
-                            <a class="dropdown-item" href="#">Breast</a>
-                            <a class="dropdown-item" href="#">Bronchus</a>
-                            <a class="dropdown-item" href="#">Colon</a>
-                            <a class="dropdown-item" href="#">Endometrium</a>
-                            <a class="dropdown-item" href="#">Esophagus</a>
-                            <a class="dropdown-item" href="#">Eye</a>
-                            <a class="dropdown-item" href="#">Fallopian Tube</a>
-                            <a class="dropdown-item" href="#">Heart Muscle</a>
-                            <a class="dropdown-item" href="#">Kidney</a>
-                            <a class="dropdown-item" href="#">Liver</a>
-                            <a class="dropdown-item" href="#">Lung</a>
-                            <a class="dropdown-item" href="#">Lymph Node</a>
-                            <a class="dropdown-item" href="#">Ovary</a>
-                            <a class="dropdown-item" href="#">Pancreas</a>
-                            <a class="dropdown-item" href="#">PBMC</a>
-                            <a class="dropdown-item" href="#">Placenta</a>
-                            <a class="dropdown-item" href="#">Prostate</a>
-                            <a class="dropdown-item" href="#">Rectum</a>
-                            <a class="dropdown-item" href="#">Salivary Gland</a>
-                            <a class="dropdown-item" href="#">Skeletal Muscle</a>
-                            <a class="dropdown-item" href="#">Skin</a>
-                            <a class="dropdown-item" href="#">Small Intestine</a>
-                            <a class="dropdown-item" href="#">Spleen</a>
-                            <a class="dropdown-item" href="#">Stomach</a>
-                            <a class="dropdown-item" href="#">Testis</a>
-                            <a class="dropdown-item" href="#">Thymus</a>
-                            <a class="dropdown-item" href="#">Tongue</a>
-                            <a class="dropdown-item" href="#">Vascular</a>
+                            <a class="dropdown-item" href="#" data-value="Tejido Adiposo">Tejido Adiposo</a>
+                            <a class="dropdown-item" href="#" data-value="Médula Ósea">Médula Ósea</a>
+                            <a class="dropdown-item" href="#" data-value="Cerebro">Cerebro</a>
+                            <a class="dropdown-item" href="#" data-value="Mama">Mama</a>
+                            <a class="dropdown-item" href="#" data-value="Bronquio">Bronquio</a>
+                            <a class="dropdown-item" href="#" data-value="Colon">Colon</a>
+                            <a class="dropdown-item" href="#" data-value="Endometrio">Endometrio</a>
+                            <a class="dropdown-item" href="#" data-value="Esófago">Esófago</a>
+                            <a class="dropdown-item" href="#" data-value="Ojo">Ojo</a>
+                            <a class="dropdown-item" href="#" data-value="Trompa de Falopio">Trompa de Falopio</a>
+                            <a class="dropdown-item" href="#" data-value="Músculo Cardíaco">Músculo Cardíaco</a>
+                            <a class="dropdown-item" href="#" data-value="Riñón">Riñón</a>
+                            <a class="dropdown-item" href="#" data-value="Hígado">Hígado</a>
+                            <a class="dropdown-item" href="#" data-value="Pulmón">Pulmón</a>
+                            <a class="dropdown-item" href="#" data-value="Ganglio Linfático">Ganglio Linfático</a>
+                            <a class="dropdown-item" href="#" data-value="Ovario">Ovario</a>
+                            <a class="dropdown-item" href="#" data-value="Páncreas">Páncreas</a>
+                            <a class="dropdown-item" href="#" data-value="PBMC">PBMC</a>
+                            <a class="dropdown-item" href="#" data-value="Placenta">Placenta</a>
+                            <a class="dropdown-item" href="#" data-value="Próstata">Próstata</a>
+                            <a class="dropdown-item" href="#" data-value="Recto">Recto</a>
+                            <a class="dropdown-item" href="#" data-value="Glándula Salival">Glándula Salival</a>
+                            <a class="dropdown-item" href="#" data-value="Músculo Esquelético">Músculo Esquelético</a>
+                            <a class="dropdown-item" href="#" data-value="Piel">Piel</a>
+                            <a class="dropdown-item" href="#" data-value="Intestino Delgado">Intestino Delgado</a>
+                            <a class="dropdown-item" href="#" data-value="Bazo">Bazo</a>
+                            <a class="dropdown-item" href="#" data-value="Estómago">Estómago</a>
+                            <a class="dropdown-item" href="#" data-value="Testículo">Testículo</a>
+                            <a class="dropdown-item" href="#" data-value="Timo">Timo</a>
+                            <a class="dropdown-item" href="#" data-value="Lengua">Lengua</a>
+                            <a class="dropdown-item" href="#" data-value="Vascular">Vascular</a>                            
                         </div>
                     </div>
                     <input
@@ -86,7 +86,7 @@
                         class="btn btn-custom btn-block mb-2"
                         value="Correr modelo"
                         style="width: 100%;"
-                        onclick='CorrerModelo(); this.disabled = true;'
+                        onclick='CorrerModeloNB(); this.disabled = true;'
                     >
                 </div>
             </div>
@@ -104,19 +104,13 @@
             </div>
             <div class="col-md-4">
                 <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Back/upload_temp/results/cluster_distributions.png" 
-                id = "ImagenDistribuciones" 
+                id="ImagenDistribuciones" 
                 style="visibility: hidden;"
                 class="responsive-img" 
                 alt="Cluster Distributions">
             </div>
             <div class="col-md-4">
                 <img src="/Users/melissa/Documents/Documents/Tesis/Desarrollo/sc-KMSTC/Back/upload_temp/results/tsne_clusters.png" 
-                id = "tSNEClusters" 
+                id="tSNEClusters" 
                 style="visibility: hidden;"
                 class="responsive-img"
-                alt="tSNE Clusters">
-            </div>
-        </div>
-    </div>
-</body>
-</html>

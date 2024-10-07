@@ -5,11 +5,13 @@ class ScExperiment:
                  matrix: csc_matrix,
                  barcodes: list,
                  genes: list,
-                 n_clusters: int = None) -> None:
+                 n_clusters: int = None,
+                 tissue: str = None) -> None:
         self.matrix = matrix
         self.barcodes = barcodes
         self.genes = genes
         self.n_clusters = n_clusters
+        self.tissue = tissue
 
     def verify_data(self) -> bool:
         """
@@ -33,3 +35,6 @@ class ScExperiment:
 
     def set_genes(self, genes: list) -> None:
         self.genes = genes
+
+    def set_tissue(self, tissue: str) -> None:
+        self.tissue = tissue

@@ -99,6 +99,23 @@ async function CorrerModeloGMM(){
   }
 }
 
+async function CorrerModeloNB(){
+  const tejidoSeleccionado = document.querySelector('.dropdown-toggle').textContent;
+  console.log("Tejido:");
+  console.log(n_clusters);
+  const response = await fetch('http://127.0.0.1:8080/CorrerModeloNB/', {
+    method: "POST",
+    body: JSON.stringify({n_clusters:n_clusters})
+  });
+
+  console.log(response.status);
+  if (response.status === 200) {
+    document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
+    document.getElementById("ImagenDistribuciones").style.visibility = "visible";
+    document.getElementById("tSNEClusters").style.visibility = "visible";
+  }
+}
+
 async function SubmitVars() {
     console.log("Entro");
     const fileInput = document.getElementById('fileInput');

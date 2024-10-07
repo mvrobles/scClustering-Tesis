@@ -58,17 +58,17 @@ class HPADataset:
             self.df.loc[c] = np.log1p(self.df.loc[c] * mediana_conteos / total)
     
 class ScDataset:
-    def __init__(self, path) -> None:
-        self.df = self.read(path)
+    def __init__(self, X, barcodes, features) -> None:
+        self.df = self.read(X, barcodes, features)
         self.genes = list(self.df.columns)
 
-    def read(self, path):
-        data_mat = h5py.File(path)
-        X = np.array(data_mat['X'], dtype = np.float64)
-        genes_hl = [x.decode('utf-8') for x in list(data_mat['gene_name'])] 
-        cells_hl = [x.decode('utf-8') for x in list(data_mat['cell_name'])] 
-        data_mat.close()
+    def read(self, X, barcodes, features):
+        try:
+            genes_hl = list(features[features.columns[1]].values)
+        except:
+            genes_hl = list(features[features.columns[0]].values)
 
+        cells_hl = list(barcodes[0].values)
         return pd.DataFrame(X, columns = genes_hl, index = cells_hl)
     
     def filter_genes(self, selected_genes):

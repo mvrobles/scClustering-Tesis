@@ -7,9 +7,7 @@ import pandas as pd
 import scanpy as sc
 import seaborn as sns
 from scipy.optimize import curve_fit
-from scipy.optimize import linear_sum_assignment
 from sklearn.decomposition import PCA
-from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score, silhouette_score
 from tqdm import tqdm
 
 import matplotlib.pyplot as plt

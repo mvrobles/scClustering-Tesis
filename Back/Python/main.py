@@ -10,11 +10,13 @@ import numpy as np
 import os
 import sys
 
-from Back.Python.NeuralNetwork.NN_run_GMM import run_GMM
+from NeuralNetwork.NN_run_GMM import run_GMM
 from read_data import *
 from sc_experiment import *
 from generate_outputs import *
-from Back.Python.GraphBased.kMST import *
+from GraphBased.kMST import *
+from NaiveBayes.main_naive_bayes import run_naive_bayes
+
 import time
 
 app = FastAPI()
@@ -147,6 +149,37 @@ async def correr_nn_gmm(request: Request):
                 barcodes = single_cell_experiment.barcodes,
                 path_results = '../upload_temp/results/',
                 n_clusters = single_cell_experiment.n_clusters)
+      end_time = time.time()
+      generate_outputs(x = single_cell_experiment.matrix, 
+                        clusters = clusters.cluster, 
+                        output_path = '../upload_temp/results/')
+      execution_time = round(end_time - start_time,2)
+  except Exception as e:
+      return JSONResponse(status_code=400, content={"message": "Error al correr el modelo"}, message ={e})
+  
+  return {"message": "Modelo corrido correctamente", "time": execution_time}
+
+@app.post("/CorrerModeloNB")
+async def correr_nn_gmm(request: Request):
+  """
+  Runs the Naive Bayes model on a single cell experiment.
+
+  Returns:
+    dict: A dictionary with a message indicating whether the model was run successfully or not.
+  """
+  try:
+      data = await request.json()
+      tissue = int(data['tissue_spanish'])
+
+      single_cell_experiment.tissue = tissue
+      
+      start_time = time.time()
+      clusters = run_naive_bayes(X = single_cell_experiment.matrix, 
+             barcodes = single_cell_experiment.barcodes,
+             features = single_cell_experiment.features,
+             path_results = '../upload_temp/results/',
+             tissue = single_cell_experiment.tissue)
+      
       end_time = time.time()
       generate_outputs(x = single_cell_experiment.matrix, 
                         clusters = clusters.cluster, 

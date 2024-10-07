@@ -29,7 +29,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import scale
 
 
-#TODO: Fix this
 class AnnSequence:
     def __init__(self, matrix, batch_size, sf=None):
         self.matrix = matrix

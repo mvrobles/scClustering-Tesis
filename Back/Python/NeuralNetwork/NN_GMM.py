@@ -14,12 +14,12 @@ from torch.autograd import Variable
 from torch.nn import Parameter
 from torch.utils.data import DataLoader, TensorDataset
 
-from Back.Python.NeuralNetwork.layers import ClusteringLoss, DispAct, MeanAct, ZINBLoss
+from .layers import ClusteringLoss, DispAct, MeanAct, ZINBLoss
 
 #import sys
 #sys.path.append('../')
 
-from utils import *
+from .utils import *
 
 torch.manual_seed(345)
 

@@ -15,13 +15,13 @@ from sklearn.cluster import Birch
 from sklearn.metrics import (calinski_harabasz_score, davies_bouldin_score,
                              silhouette_score)
 
-from Back.Python.NeuralNetwork.NN_GMM import scGMM
+from .NN_GMM import scGMM
 
 import sys
 sys.path.append('../')
 
-from Back.Python.NeuralNetwork.preprocess import normalize, read_dataset
-from utils import cluster_acc
+from .preprocess import normalize, read_dataset
+from .utils import cluster_acc
 
 warnings.filterwarnings('ignore')
 
