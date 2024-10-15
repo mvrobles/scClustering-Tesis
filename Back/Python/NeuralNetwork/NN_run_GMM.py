@@ -70,7 +70,7 @@ def second_training(params, model, adata):
     t0 = time()
     
     # Second training: clustering loss + ZINB loss
-    y_pred,  mu, pi, cov, z, epochs, clustering_metrics, losses = model.fit(X=adata.X, X_raw=adata.raw.X, 
+    y_pred,  distr, mu, pi, cov, z, epochs, clustering_metrics, losses = model.fit(X=adata.X, X_raw=adata.raw.X, 
                                     sf=adata.obs.size_factors, batch_size=params['batch_size'],  num_epochs=params['maxiter'],
                                     update_interval=params['update_interval'], tol=params['tol'], lr = 0.001, y = None)
 
@@ -80,55 +80,10 @@ def second_training(params, model, adata):
     pd.DataFrame(pi.cpu().detach().numpy()).to_csv(params['path_results']  + 'Pi.csv', index = None)
     pd.DataFrame(cov.cpu().detach().numpy()).to_csv(params['path_results'] + 'DiagCov.csv', index = None)
 
-    with open(params['path_results'] + '/prediccion.pickle', 'wb') as handle:
-        pickle.dump(y_pred, handle)
-
     print('Time: %d seconds.' % int(time() - t0))
 
-    return y_pred
+    return distr, y_pred
 
-
-def model_BIRCH(X: np.array, 
-                n_clusters: int,
-                threshold: list = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0], 
-                branching_factor: list =  [10, 50, 100, 150]
-                ) -> tuple:
-    """
-    Trains a Birch model for the input data X by optimizing the hyperparameters threshold and branching factor.
-
-    input:
-    - X: array with data to cluster
-    - n_clusters: number of clusters 
-    - threshold: list of possible values of threshold for the Birch model
-    - branching_factor: list of possible branching factor values for the Birch model
-
-    output:
-    - best_model: a Birch Model of sklearn that maximized the silhouette score for the data
-    - params: tuple of 
-    """
-    # Hyperparameters to search
-    param_grid = {
-        'threshold': threshold,
-        'branching_factor': branching_factor
-    }
-
-    max_sil = -2
-    params = 0, 0 
-    best_model = None 
-    for t in param_grid['threshold']:
-        for b in param_grid['branching_factor']:
-            birch_model = Birch(n_clusters=n_clusters, threshold = t, branching_factor = b)
-            birch_model.fit(X)
-
-            labels = birch_model.predict(X)
-
-            sil = silhouette_score(X, labels)
-            if sil > max_sil:
-                max_sil = sil
-                params = t, b 
-                best_model = birch_model
-
-    return best_model, params, max_sil 
 
 def unsupervised_metrics(X, y_pred):
     # Evaluación final de resultados: métricas comparando con los clusters reales
@@ -158,7 +113,7 @@ def run_GMM(X: np.array,
 
     # Model training
     model = create_train_model(params, anndata_p, n_clusters)   
-    y_pred1 = second_training(params, model, anndata_p)
+    distr, y_pred1 = second_training(params, model, anndata_p)
 
     print('----> Unsupervised metrics for GMM Autoencoder:')
     unsupervised_metrics(x, y_pred1)
@@ -168,17 +123,12 @@ def run_GMM(X: np.array,
     barcodes.to_csv(path_results + 'gmm_clusters.csv', index = False)
     print(f'-----> Se guardó correctamente el csv {path_results}')
 
-    # # Birch
-    # z = pd.read_csv(params['path_results'] + 'Z.csv').values
-    # best_model, _, _ = model_BIRCH(X = z, n_clusters = n_clusters)
-    # y_pred2 = best_model.predict(z)
+    for i in range(n_clusters):
+        barcodes["prob_cluster" + str(i)] = distr[:,i]
+        
+    barcodes.to_csv(path_results + 'gmm_clusters_prob.csv', index = False)
+    print(f'-----> Se guardó correctamente el csv con la distribución de probabilidad {path_results}')
 
-    # # Guardar resultados
-    # barcodes['cluster'] = y_pred2
-    # barcodes.to_csv(path_results + 'gmm_birch_clusters.csv', index = False)
-    # print(f'-----> Se guardó correctamente el csv {path_results}')
+    distr = distr / distr.sum(axis=1, keepdims=True)
     
-    # print('\n----> Unsupervised metrics for GMM Autoencoder + Birch:')
-    # unsupervised_metrics(z, y_pred2)
-
-    return barcodes
+    return barcodes, distr

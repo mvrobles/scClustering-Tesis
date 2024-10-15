@@ -160,9 +160,6 @@ class scGMM(nn.Module):
         
         return cov_mats
 
-    def save_checkpoint(self, state, index, filename):
-        newfilename = os.path.join(filename, 'FTcheckpoint_%d.pth.tar' % index)
-        torch.save(state, newfilename)
 
     def pretrain_autoencoder(self, x, X_raw, size_factor, batch_size=256, lr=0.001, epochs=400): # CAMBIAR POR 0.0001
         use_cuda = torch.cuda.is_available()
@@ -187,18 +184,6 @@ class scGMM(nn.Module):
                 
                 print('Pretrain epoch [{}/{}], ZINB loss:{:.4f}'.format(batch_idx+1, epoch+1, loss.item()))
                 loss_s.append(loss.item())
-            
-            with open(self.path + '/pretrain_loss.pickle', 'wb') as handle:
-                pickle.dump(loss_s, handle)
-
-        # Save the pretrained model 
-        f = open(self.path + f'pretrained_model_with_{epoch}_epochs.pickle', 'wb')
-        pickle.dump(self, f)
-        f.close 
-
-    def save_checkpoint(self, state, index, filename):
-        newfilename = os.path.join(filename, 'FTcheckpoint_%d.pth.tar' % index)
-        torch.save(state, newfilename)
 
     def fit(self, X, X_raw, sf, lr=0.1, batch_size=256, num_epochs=10, update_interval=1, tol=1e-4, y = None):
         '''X: tensor data'''
@@ -225,9 +210,6 @@ class scGMM(nn.Module):
         print("Initializing cluster centers with kmeans.")
         kmeans = KMeans(self.n_clusters, n_init=20, random_state = 999)
         data = self.encodeBatch(X)
-
-        with open(self.path + '/DATOS_ANTES_KMEANS.pickle', 'wb') as handle:
-            pickle.dump( data.data.cpu().numpy(), handle)
 
         self.y_pred = kmeans.fit_predict(data.data.cpu().numpy())
         self.y_pred_last = self.y_pred
@@ -258,17 +240,6 @@ class scGMM(nn.Module):
 
                 # check stop criterion
                 delta_label = np.sum(self.y_pred != self.y_pred_last).astype(np.float32) / num
-                
-                # save current model
-                if epoch%50 == 0:
-                    self.save_checkpoint({'epoch': epoch+1,
-                            'state_dict': self.state_dict(),
-                            'mu': self.mu,
-                            'y_pred': self.y_pred,
-                            'z': z,
-                            'pi': self.pi,
-                            'cov': self.cov,
-                            }, epoch+1, filename=save_dir)
                     
                 self.y_pred_last = self.y_pred
             
@@ -289,7 +260,7 @@ class scGMM(nn.Module):
                 diag = torch.where(self.diag_cov.double() <= 0, 1/2100, self.diag_cov.double())
                 self.cov = torch.stack([torch.diag(diag.detach()[i]) for i in range(self.n_clusters)])#.cuda()
 
-                z, meanbatch, dispbatch, pibatch, prob_matrixbatch = self.forward(inputs) 
+                z, meanbatch, dispbatch, pibatch, prob_matrixbatch = self.forward(inputs)
 
                 cluster_loss = self.clustering_loss(prob_matrixbatch)
                 recon_loss = self.zinb_loss(rawinputs, meanbatch, dispbatch, pibatch, sfinputs)
@@ -312,42 +283,8 @@ class scGMM(nn.Module):
             losses['zinb'].append(recon_loss_val / num)
             losses['gmm'].append(cluster_loss_val / num)
 
-            # Early Stopping Check
-            # current_loss = train_loss / num
-            # if current_loss < best_loss - tol:
-            #     best_loss = current_loss
-            #     patience_counter = 0
-            # else:
-            #     patience_counter += 1
+        inputs = Variable(X)
+        z, _, _, _, _ = self.forward(inputs)
+        distr = self.find_probabilities(z).data.cpu().numpy()
 
-            # if patience_counter >= patience:
-            #     print(f"Early stopping at epoch {epoch + 1}")
-            #     break
-
-            if not y is None:
-                z = self.encodeBatch(X)        
-                distr = self.find_probabilities(z)
-                self.y_pred = torch.argmax(distr.clone().detach(), dim=1).data.cpu().numpy()
-
-                accuracy = np.round(cluster_acc(y_true = y, y_pred = self.y_pred), 5)
-                nmi = np.round(metrics.normalized_mutual_info_score(y, self.y_pred), 5)
-                ari = np.round(metrics.adjusted_rand_score(y, self.y_pred), 5)
-
-                clustering_metrics['ac'].append(accuracy)
-                clustering_metrics['nmi'].append(nmi)
-                clustering_metrics['ari'].append(ari)
-                print(f"ACC {accuracy}")
-                
-            with open(self.path + '/clustering_metrics.pickle', 'wb') as handle:
-                pickle.dump( clustering_metrics, handle)
-
-            with open(self.path + '/losses.pickle', 'wb') as handle:
-                pickle.dump( losses, handle)
-                
-            with open(self.path + '/decoder_info.pickle', 'wb') as handle:
-                inputs = Variable(X)
-                z, meanbatch, dispbatch, pibatch, prob_matrixbatch = self.forward(inputs) 
-                results_encoder = {'mean': meanbatch, 'sigma': dispbatch, 'pi': pibatch}
-                pickle.dump(results_encoder, handle)
-
-        return self.y_pred, self.mu, self.pi, self.diag_cov, z, epoch, clustering_metrics, losses
+        return self.y_pred, distr, self.mu, self.pi, self.diag_cov, z, epoch, clustering_metrics, losses

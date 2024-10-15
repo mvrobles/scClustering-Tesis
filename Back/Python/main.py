@@ -80,6 +80,10 @@ async def cargar_datos(file_mtx: UploadFile = File(...),
         single_cell_experiment = ScExperiment(matrix=x, barcodes=barcodes, genes=genes)
         single_cell_experiment.verify_data()
 
+
+        print("LEYO CORRECTAMENTE EL SINGLE CELL EXPERIMENT")
+        print(single_cell_experiment)
+
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": "Error al leer el archivo"}, message ={e})
     
@@ -117,6 +121,7 @@ async def correr_kmst():
         start_time = time.time()
         results_path = '../upload_temp/results/'
         
+        print("ENTRO A CORRER KMST", single_cell_experiment)
         clusters = run_kmst(X = single_cell_experiment.matrix, 
                          barcodes = single_cell_experiment.barcodes, 
                          path_results = results_path, 
@@ -145,7 +150,7 @@ async def correr_nn_gmm(request: Request):
       single_cell_experiment.n_clusters = n_clusters
       
       start_time = time.time()
-      clusters = run_GMM(X = single_cell_experiment.matrix, 
+      clusters, distr = run_GMM(X = single_cell_experiment.matrix, 
                 barcodes = single_cell_experiment.barcodes,
                 path_results = '../upload_temp/results/',
                 n_clusters = single_cell_experiment.n_clusters)
@@ -153,6 +158,7 @@ async def correr_nn_gmm(request: Request):
       generate_outputs(x = single_cell_experiment.matrix, 
                         clusters = clusters.cluster, 
                         output_path = '../upload_temp/results/')
+      generate_output_gmm(prob = distr, output_path = '../upload_temp/results/')
       execution_time = round(end_time - start_time,2)
   except Exception as e:
       return JSONResponse(status_code=400, content={"message": "Error al correr el modelo"}, message ={e})

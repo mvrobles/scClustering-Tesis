@@ -1,4 +1,3 @@
-import pickle
 import warnings
 from typing import Tuple
 import networkx as nx
@@ -12,6 +11,7 @@ from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
+plt.rcParams.update({'font.size': 18})
 
 def normalize(adata, filter_min_counts=True, logtrans_input=True):
     if filter_min_counts:
@@ -54,20 +54,17 @@ def filter_genes_mean_variance(X):
     return X_filtered
 
 def paint_matrix(correlaciones, output_path, name):
-    plt.figure()
+    plt.figure(figsize = (8,6))
     sns.heatmap(correlaciones).set(
-        title = 'Correlaciones entre células')
+        title = 'Correlaciones entre células',
+        xticks = [],
+        yticks = [])
     plt.savefig(output_path + name + '.png')
     plt.close()
 
 def get_correlations(X):
     correlaciones = np.corrcoef(X)
     return correlaciones
-
-def save_matrix(correlaciones, output_path, name):
-    with open(output_path + name + '.pickle', 'wb') as f:
-        pickle.dump(correlaciones, f)
-
 
 def create_kMST(distance_matrix, inverse = True, k = None, threshold = 1e-5):
     if k is None:
@@ -157,17 +154,13 @@ def run_kmst(X: np.array,
 
     # Guardar datos
     paint_matrix(correlaciones, path_results, name = "correlaciones_heatmap")
-    save_matrix(correlaciones,  path_results, name = "correlaciones")
     print('Se guardaron correctamente las correlaciones y el heatmap en la carpeta ' + path_results)
 
     # Crear y guardar MST
     kmst = create_kMST(distance_matrix = correlaciones, 
                        inverse = True, 
                        threshold = 0)
-    print('-----> Terminó la creación del grafo kMST para k = logN')
 
-    with open(path_results + 'kmst_graph.pickle', 'wb') as file:
-        pickle.dump(kmst, file)
     print(f'-----> Se guardó correctamente el grafo kMST en {path_results}')
 
     # Clustering

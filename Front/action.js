@@ -1,3 +1,4 @@
+
 async function LeerArchivos() {
   // Barcodes
   const fileInputBarcodes = document.getElementById('inputBarcodes');
@@ -54,17 +55,26 @@ async function LeerArchivos() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-  document.getElementById("graph-based").addEventListener("click", function() {
-    window.location.href = "graphBasedAlgorithm.html";
-  });
+  const button1 = document.getElementById("graph-based");
+  if (button1) {
+    document.getElementById("graph-based").addEventListener("click", function() {
+      window.location.href = "graphBasedAlgorithm.html";
+    });
+  }
 
-  document.getElementById("neural-network").addEventListener("click", function() {
-    window.location.href = "NNBasedAlgorithm.html";
-  });
+  const button2 = document.getElementById("neural-network");
+  if (button2) {
+    document.getElementById("neural-network").addEventListener("click", function() {
+      window.location.href = "NNBasedAlgorithm.html";
+    });
+  }
 
-  document.getElementById("bayesian-models").addEventListener("click", function() {
-    window.location.href = "NaiveBayesAlgorithm.html";
-  });
+  const button3 = document.getElementById("bayesian-models");
+  if (button3){
+    document.getElementById("bayesian-models").addEventListener("click", function() {
+      window.location.href = "NaiveBayesAlgorithm.html";
+    });
+  }
 });
 
 async function CorrerModeloGrafos(){
@@ -76,9 +86,11 @@ async function CorrerModeloGrafos(){
   const responseText = await response.text();
   if (response.status === 200) {
     console.log("ENTRO AL IF");
+    actualizarImagenesGraph();
     document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
     document.getElementById("ImagenDistribuciones").style.visibility = "visible";
     document.getElementById("tSNEClusters").style.visibility = "visible";
+    document.getElementById("descargarResultados").style.visibility = "visible";
   }
 }
 
@@ -91,11 +103,15 @@ async function CorrerModeloGMM(){
     body: JSON.stringify({n_clusters:n_clusters})
   });
 
+  console.log("Terminó de correr el modelo GMM");
+
   console.log(response.status);
   if (response.status === 200) {
-    document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
-    document.getElementById("ImagenDistribuciones").style.visibility = "visible";
-    document.getElementById("tSNEClusters").style.visibility = "visible";
+    actualizarImagenesGMM()
+    document.getElementById("ImagenDistrProbabilidadesGMM").style.visibility = "visible";
+    document.getElementById("ImagenDistribucionesGMM").style.visibility = "visible";
+    document.getElementById("tSNEClustersGMM").style.visibility = "visible";
+    document.getElementById("descargarResultadosGMM").style.visibility = "visible";
   }
 }
 
@@ -110,6 +126,7 @@ async function CorrerModeloNB(){
 
   console.log(response.status);
   if (response.status === 200) {
+    actualizarImagenes()
     document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
     document.getElementById("ImagenDistribuciones").style.visibility = "visible";
     document.getElementById("tSNEClusters").style.visibility = "visible";
