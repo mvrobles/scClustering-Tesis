@@ -16,7 +16,7 @@ from sc_experiment import *
 from generate_outputs import *
 from GraphBased.kMST import *
 from NaiveBayes.main_naive_bayes import run_naive_bayes
-
+from dict_tissues import tejidos_dict
 import time
 
 app = FastAPI()
@@ -66,20 +66,13 @@ async def cargar_datos(file_mtx: UploadFile = File(...),
     """
     try:
         folder_path = '../upload_temp/'
+        print("Comienza la lectura de los archivoss")
         path_mtx = download_to_local(file_mtx, folder_path)
         path_barcodes = download_to_local(file_barcodes, folder_path)
         path_features = download_to_local(file_genes, folder_path)
         
-        barcodes, genes, x = read_data_scexperiment(path_mtx, path_barcodes, path_features)
-
-        anndata_p = sc.AnnData(x)
-        anndata_p.obs = barcodes
-        anndata_p.var = genes
-
-        global single_cell_experiment 
-        single_cell_experiment = ScExperiment(matrix=x, barcodes=barcodes, genes=genes)
+        x = initialize_sc_experiment(path_mtx, path_barcodes, path_features)
         single_cell_experiment.verify_data()
-
 
         print("LEYO CORRECTAMENTE EL SINGLE CELL EXPERIMENT")
         print(single_cell_experiment)
@@ -88,6 +81,17 @@ async def cargar_datos(file_mtx: UploadFile = File(...),
         return JSONResponse(status_code=400, content={"message": "Error al leer el archivo"}, message ={e})
     
     return {"num_genes": x.shape[0], "num_celulas": x.shape[1], "status": 200}
+
+def initialize_sc_experiment(path_mtx, path_barcodes, path_features):
+    barcodes, genes, x = read_data_scexperiment(path_mtx, path_barcodes, path_features)
+
+    anndata_p = sc.AnnData(x)
+    anndata_p.obs = barcodes
+    anndata_p.var = genes
+
+    global single_cell_experiment 
+    single_cell_experiment = ScExperiment(matrix=x, barcodes=barcodes, genes=genes)
+    return x
 
 def read_data_scexperiment(path_mtx, path_barcodes, path_features):
     if 'gz' in path_barcodes:
@@ -166,29 +170,31 @@ async def correr_nn_gmm(request: Request):
   return {"message": "Modelo corrido correctamente", "time": execution_time}
 
 @app.post("/CorrerModeloNB")
-async def correr_nn_gmm(request: Request):
+async def correr_nb(request: Request):
   """
   Runs the Naive Bayes model on a single cell experiment.
 
   Returns:
     dict: A dictionary with a message indicating whether the model was run successfully or not.
   """
-  try:
+  try:        
       data = await request.json()
-      tissue = int(data['tissue_spanish'])
+      tissue = data['tissue_spanish']
+      tissue = tejidos_dict[tissue]
 
       single_cell_experiment.tissue = tissue
       
       start_time = time.time()
       clusters = run_naive_bayes(X = single_cell_experiment.matrix, 
              barcodes = single_cell_experiment.barcodes,
-             features = single_cell_experiment.features,
+             features = single_cell_experiment.genes,
              path_results = '../upload_temp/results/',
              tissue = single_cell_experiment.tissue)
       
       end_time = time.time()
-      generate_outputs(x = single_cell_experiment.matrix, 
-                        clusters = clusters.cluster, 
+      generate_output_nb(x = single_cell_experiment.matrix,
+                         barcodes_clusters = clusters, 
+                         real_tissue = single_cell_experiment.tissue,
                         output_path = '../upload_temp/results/')
       execution_time = round(end_time - start_time,2)
   except Exception as e:

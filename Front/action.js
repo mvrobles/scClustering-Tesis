@@ -75,6 +75,17 @@ document.addEventListener("DOMContentLoaded", function() {
       window.location.href = "NaiveBayesAlgorithm.html";
     });
   }
+
+  const dropdownButton = document.getElementById("dropdownMenuButton");
+  const items = document.querySelectorAll('.dropdown-item');
+  
+  if (dropdownButton && items) {
+    items.forEach(item => {
+      item.addEventListener('click', function() {
+        dropdownButton.textContent = this.textContent;
+      });
+    });
+  }
 });
 
 async function CorrerModeloGrafos(){
@@ -116,20 +127,21 @@ async function CorrerModeloGMM(){
 }
 
 async function CorrerModeloNB(){
-  const tejidoSeleccionado = document.querySelector('.dropdown-toggle').textContent;
+  const tissue_spanish = document.querySelector('.dropdown-toggle').textContent;
   console.log("Tejido:");
-  console.log(n_clusters);
+  console.log(tissue_spanish);
   const response = await fetch('http://127.0.0.1:8080/CorrerModeloNB/', {
     method: "POST",
-    body: JSON.stringify({n_clusters:n_clusters})
+    body: JSON.stringify({tissue_spanish : tissue_spanish})
   });
 
   console.log(response.status);
   if (response.status === 200) {
-    actualizarImagenes()
-    document.getElementById("ImagenCorrelaciones").style.visibility = "visible";
-    document.getElementById("ImagenDistribuciones").style.visibility = "visible";
-    document.getElementById("tSNEClusters").style.visibility = "visible";
+    actualizarImagenesNB()
+    document.getElementById("ImagenTissues").style.visibility = "visible";
+    document.getElementById("ImagenTissuesTipos").style.visibility = "visible";
+    document.getElementById("tSNEClustersNB").style.visibility = "visible";
+    document.getElementById("descargarResultadosNB").style.visibility = "visible";
   }
 }
 

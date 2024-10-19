@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 import scanpy as sc
+from sklearn.preprocessing import LabelEncoder
 
 sns.set_style('whitegrid')
 plt.rcParams.update({'font.size': 18})
@@ -38,19 +39,14 @@ def paint_tsne(x: np.array,
     - None
     """
     adata = sc.AnnData(x)
-    adata.obs['cluster'] = clusters.astype(str)
+    adata.obs['cluster'] = clusters.astype(str).values
+    num_clusters = clusters.nunique()
 
-    #x_embedded = reduce_dimension(x)
     plt.figure(figsize=(8,6))
+    palette = sns.color_palette("tab20", num_clusters)
     sc.tl.tsne(adata, use_rep='X', n_pcs=0, perplexity=30)
-    sc.pl.tsne(adata, color='cluster', title='t-SNE plot colored by cluster', size=50, show=False)
-    #sns.scatterplot(x=x_embedded[:,0], y=x_embedded[:,1], hue = clusters.values, palette = "Set1", size = 1).set(
-    #    title = 'Agrupación de células - Representación t-SNE',
-    #    xlabel = 't-SNE_1',
-    #    ylabel = 't-SNE_2',
-    #    xticks = [],
-    #    yticks = []
-    #)
+    sc.pl.tsne(adata, color='cluster', title='t-SNE agrupación', size=50, show=False, palette=palette)
+    
     plt.savefig(output_path + 'tsne_clusters.png')
     plt.close()
 
@@ -104,3 +100,42 @@ def generate_output_gmm(prob: np.array, output_path: str) -> None:
     )
     plt.savefig(output_path + 'gmm_probabilities.png')
     plt.close()
+
+def generate_output_nb(x: np.array, barcodes_clusters: np.array, 
+                       output_path: str, real_tissue: str) -> None:
+    plot_tissue_distribution(barcodes_clusters, output_path)
+    plot_type_distribution(barcodes_clusters, output_path, real_tissue)
+
+    label_encoder = LabelEncoder()
+    barcodes_clusters['num_cluster'] = label_encoder.fit_transform(barcodes_clusters.cluster.values)
+    paint_tsne(x, output_path, barcodes_clusters.num_cluster)
+    
+def plot_type_distribution(barcodes_clusters, output_path, real_tissue):
+    barcodes_tissue = barcodes_clusters[barcodes_clusters.tissue == real_tissue]
+    plt.figure()
+    b= sns.barplot(barcodes_tissue.type.value_counts(), orient='h')
+    b.set(
+        title = "Distribución de tipos celulares \n Tejido: " + real_tissue,
+        ylabel = "",
+        xlabel = "Número de células asignadas",
+    )
+
+    for container in b.containers:
+        b.bar_label(container, label_type='edge', padding=3, fontsize=8)
+
+    plt.tight_layout()
+    plt.savefig(output_path + 'nb_type_distribution.png')
+
+def plot_tissue_distribution(barcodes_clusters, output_path):
+    plt.figure()
+    b= sns.barplot(barcodes_clusters.tissue.value_counts(), orient='h')
+    b.set(
+        title = "Distribución de tejidos asignados",
+        ylabel = "",
+        xlabel = "Número de células asignadas",
+    )
+
+    for container in b.containers:
+        b.bar_label(container, label_type='edge', padding=3, fontsize=8)
+    plt.tight_layout()
+    plt.savefig(output_path + 'nb_tissue_distribution.png')
