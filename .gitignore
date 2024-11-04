@@ -3,6 +3,7 @@ data/*
 results/*
 *.pyc
 RevisionMeli/*
-temp/*
-*/upload_temp/*
-*.tsv
+*.csv
+*.mtx*
+*.png
+*.pickle

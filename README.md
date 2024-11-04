@@ -4,7 +4,7 @@ En este repositorio se encuentra la implementación del demo desarrollado durant
 ## Algoritmos
 ### k-MST
 ![k-MST Algorithm](Diagramas/k-MST.png)
-Algoritmo no supervisado basado en grafos. a) Realizar la secuenciación de RNA de una sola célula. b) Generar la matriz de conteo. c) Filtrado de genes: Retener solo los 5000 genes con la desviación más alta de la varianza ajustada. d) Calcular la correlación de Pearson por pares entre células. e) Calcular el grafo k-MST. f) Aplicar el algoritmo de Louvain para la detección de comunidades.
+Algoritmo no supervisado basado en grafos. a) Realizar la secuenciación de scRNA-seq. b) Generar la matriz de conteo. c) Filtrado de genes: Retener solo los 5000 genes con la desviación más alta de la varianza ajustada. d) Calcular la correlación de Pearson por pares entre células. e) Calcular el grafo k-MST. f) Aplicar el algoritmo de Louvain para la detección de comunidades.
 
 
 ### AE-GMM
