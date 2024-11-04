@@ -1,9 +1,9 @@
 **/.DS_Store
 data/*
-results/*
+*Back/upload_temp/results/*
 *.pyc
 RevisionMeli/*
 *.csv
 *.mtx*
-*.png
+**results/*.png
 *.pickle
