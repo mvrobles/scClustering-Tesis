@@ -1,5 +1,5 @@
 # Metodologías de identificación de tipos celulares a partir de datos de secuenciación de RNA de célula sencilla. 
-En este repositorio se encuentra la implementación del demo desarrollado durante la tesis de grado de Melissa Robles de la Maestría en Inginiería de Sistemas y Computación de la Universidad de Los Andes (2024). El demo implementado en este repositorio permite la ejecución de tres algoritmos de agrupamiento de datos de scRNA-seq: k-MST basado en grafos, AE-GMM basado en redes neuronales y Negative Binomial Naive Bayes, basado en la basde de Human Protein Atlas [1].
+En este repositorio se encuentra la implementación del demo desarrollado durante la tesis de grado de Melissa Robles de la Maestría en Inginiería de Sistemas y Computación de la Universidad de Los Andes (2024). El demo implementado en este repositorio permite la ejecución de tres algoritmos de agrupamiento de datos de scRNA-seq: k-MST basado en grafos, AE-GMM basado en redes neuronales y Negative Binomial Naive Bayes, basado en la base de Human Protein Atlas [1].
 
 ## Algoritmos
 ### k-MST
@@ -24,7 +24,7 @@ uvicorn main:app  --port 8080
 Además, se debe abrir el archivo `front/loadData.html` para comenzar a interactuar con el Demo.
 
 ## Resultados
-Las métricas para los diferentes experimentos que se realizaron en el proyecto de grado se encuentran en `Resultados/Resultados.xlsx`,
+Las métricas para los diferentes experimentos que se realizaron en el proyecto de grado se encuentran en `Resultados/Resultados.xlsx`.
 
 ## Referencias 
 [1] Karlsson, M., Zhang, C., M´ear, L., Zhong, W., Digre, A., Katona, B., Sjostedt, E., Butler, L., Odeberg, J., Dusart, P., Edfors, F., Oksvold, P., Feilitzen, K., Zwahlen, M., Arif, M., Altay, O., Li, X., Ozcan, M., Mardinoglu, A., Fagerberg, L., Mulder, J., Luo, Y., Ponten, F., Uhlen, M., Lindskog, C.: A single–cell type transcriptomics map of human tissues. Science Advances 7(31), 2169 (2021) https://doi.org/10.1126/sciadv.abh2169 
